@@ -1,0 +1,6 @@
+roslaunch realsense_camera sr300_nodelet_rgbd.launch
+roslaunch apriltags_ros example.launch
+rosrun tf static_transform_publisher 0 0 0 0 0 0 1 /map /bin_center 100
+rosrun heightmap_creator getpose.py
+rosrun heightmap_creator setcamera.py
+
