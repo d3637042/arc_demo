@@ -28,6 +28,7 @@ build
 devel
 matlab_gen
 .catkin_workspace
+src/CMakeLists.txt
 *~
 *.gz
 .viewer-prefs
