@@ -12,7 +12,9 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
-#include "pcl_ros/point_cloud.h"
+#include <pcl_conversions/pcl_conversions.h>
+#include <pcl_ros/point_cloud.h>
+#include <pcl_ros/transforms.h>
 #include <pcl/registration/icp.h>
 #include <pcl/common/common.h>
 #include <pcl/kdtree/kdtree_flann.h>
@@ -34,7 +36,10 @@
 //ROS
 #include "ros/ros.h"
 #include "std_msgs/String.h"
+#include "std_srvs/SetBool.h"
 #include <tf/transform_listener.h>
+//opencv
+#include <opencv2/opencv.hpp>
 
 using namespace std;
 using namespace pcl;
@@ -46,11 +51,14 @@ ros::Subscriber pointcloud_subscriber;
 ros::Publisher pointcloud_publisher;
 ros::Publisher voxel_pub;
 ros::Publisher model_coeff_pub;
+ros::Publisher pcl2trans_pub;
+ros::Publisher pcl2transerror_pub;
 void pointcloud_cb(const sensor_msgs::PointCloud2ConstPtr& input);
 double* read_camera_extrinsic();
 tf::StampedTransform transformtf;
-
-
+tf::TransformListener* listener;
+PointCloud<PointXYZRGB>::Ptr realcloud (new pcl::PointCloud<pcl::PointXYZRGB> ()); 
+bool get_height_map(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res);
 int main(int argc, char** argv){
 //ros node init
 	//extrinsic = read_camera_extrinsic();
@@ -63,18 +71,21 @@ int main(int argc, char** argv){
 	*/
 	ros::init (argc, argv, "get_height_map");
 	ros::NodeHandle nh; 
-
-	
-	tf::TransformListener listener; 
+	tf::TransformListener lr(ros::Duration(10));
+	listener = &lr; 
 	ros::Rate rate(1.0);
 	rate.sleep();
 	rate.sleep();
-	listener.lookupTransform( "/camera_rgb_optical_frame", "/map", ros::Time(0), transformtf);
+	//listener->lookupTransform( "/camera_rgb_optical_frame", "/map", ros::Time(0), transformtf);
 	pointcloud_subscriber = nh.subscribe<sensor_msgs::PointCloud2> ("/camera/depth_registered/points", 1, pointcloud_cb);
 	//pointcloud_subscriber = nh.subscribe<sensor_msgs::PointCloud2> ("/camera_link/moving_object", 1, pointcloud_cb);
-	pointcloud_publisher = nh.advertise<PointCloudXYZRGB> ("/camera/depth_registered/transformed_points", 1);
-    voxel_pub = nh.advertise<sensor_msgs::PointCloud2> ("/voxel", 1);
-	model_coeff_pub = nh.advertise<pcl_msgs::ModelCoefficients> ("output", 1);
+	pointcloud_publisher = nh.advertise<PointCloudXYZRGB> ("/cropedpointcloud", 1);
+    //voxel_pub = nh.advertise<sensor_msgs::PointCloud2> ("/voxel", 1);
+	//model_coeff_pub = nh.advertise<pcl_msgs::ModelCoefficients> ("output", 1);
+	pcl2trans_pub = nh.advertise<sensor_msgs::PointCloud2> ("/pcl2trans", 1);
+	pcl2transerror_pub = nh.advertise<sensor_msgs::PointCloud2> ("/pcl2transerror", 1);
+	ros::ServiceServer service = nh.advertiseService("/get_height_map", get_height_map);
+
 	ros::spin ();
 	return 0;
 }
@@ -105,30 +116,36 @@ double* read_camera_extrinsic(){
 }
 void pointcloud_cb(const sensor_msgs::PointCloud2ConstPtr& input){
 	//cout << input->header.frame_id << endl;
-	PointCloud<PointXYZRGB>::Ptr source_cloud (new pcl::PointCloud<pcl::PointXYZRGB> ());
-	PointCloud<PointXYZRGB>::Ptr transformed_cloud (new pcl::PointCloud<pcl::PointXYZRGB> ());
-//get pointcloud from rostopic
-	pcl::fromROSMsg (*input, *source_cloud);
-	int i=0;
-	//for (i=0;i<7;i++)
-		//cout << extrinsic_array[i] << endl;
-	/*
-	Eigen::Matrix3f rotmat = Eigen::Quaternionf(extrinsic_array[6], extrinsic_array[3], extrinsic_array[4], extrinsic_array[5]).toRotationMatrix();
+	//PointCloud<PointXYZRGB>::Ptr source_cloud (new pcl::PointCloud<pcl::PointXYZRGB> ());
+	//PointCloud<PointXYZRGB>::Ptr transformed_cloud (new pcl::PointCloud<pcl::PointXYZRGB> ());
+	
+	////////////////////get pointcloud from rostopic
+	//pcl::fromROSMsg (*input, *source_cloud);
+	
+    ////////////////////TRANSFORM(by APi) pointcloud from camera to map////////////////////
+	sensor_msgs::PointCloud2 transcloud, outputcloud;
+	const string map = "/map";
+	pcl_ros::transformPointCloud(map, *input, transcloud, *listener);
+	pcl2trans_pub.publish(transcloud);
+	
+
+	////////////////////translate error////////////////////
 	Eigen::Matrix4f transform = Eigen::Matrix4f::Identity();
-	transform.block(0,0,3,3) = rotmat;
-	transform (0,3) = extrinsic_array[0];
-	transform (1,3) = extrinsic_array[1];
-	transform (2,3) = extrinsic_array[2];
-	std::cout << transform << std::endl;
-	Eigen::Matrix4f inv_transform = transform.inverse();
-	std::cout << inv_transform << std::endl;
-	Eigen::Matrix3f rotmat2 = Eigen::Quaternionf(-0.5, 0.5, 0.5, 0.5).toRotationMatrix();
-	Eigen::Matrix4f transform2 = Eigen::Matrix4f::Identity();
-	transform2.block(0,0,3,3) = rotmat2;
-	Eigen::Matrix4f inv_transform2 = transform2.inverse();
-	Eigen::Matrix4f final_transform = transform2 * inv_transform;
-	*/
-    
+	//if needed
+	//transform (0,3) = -0.012;
+	pcl_ros::transformPointCloud(transform, transcloud, outputcloud);
+	pcl2transerror_pub.publish(outputcloud);
+	
+	////////////////////crop pointcloud////////////////////
+	// (x/2, y/2) = (0.12,0.20)
+	
+	pcl::fromROSMsg (outputcloud, *realcloud);
+
+	pointcloud_publisher.publish(*realcloud);
+
+
+	////////////////////TRANSFORMATION BY HAND(not matching truth////////////////////
+    /*
 	Eigen::Matrix3f rotmat = Eigen::Quaternionf(transformtf.getRotation().w(), transformtf.getRotation().x(), transformtf.getRotation().y(), transformtf.getRotation().z()).toRotationMatrix();
 	Eigen::Matrix4f transform = Eigen::Matrix4f::Identity();
 	transform.block(0,0,3,3) = rotmat;
@@ -139,14 +156,15 @@ void pointcloud_cb(const sensor_msgs::PointCloud2ConstPtr& input){
 	//cout << transformtf.getRotation().x() << " " << transformtf.getRotation().y() << " " << transformtf.getRotation().z() << " " << transformtf.getRotation().w() << endl;
 	transformPointCloud (*source_cloud, *transformed_cloud, transform);
 	transformed_cloud->header.frame_id = "/map";
-	cout << transformed_cloud->width << " " << transformed_cloud->height << endl;
+	*/
+	//cout << transformed_cloud->width << " " << transformed_cloud->height << endl;
 	
 
 	//Eigen::Quaternionf q = transformed_cloud->sensor_orientation_;
 	//cout << transformed_cloud->sensor_origin_ << " " <<  q.x() << " " <<  q.y() << " " <<  q.z() << " " << q.w() << endl;
-	
+	/*
 	for (int i=0; i<transformed_cloud->size(); i++){
-		if(transformed_cloud->points[i].z<0.08){
+		if(transformed_cloud->points[i].g>40){
 			transformed_cloud->points[i].r=0;
 			transformed_cloud->points[i].g=255;
 			transformed_cloud->points[i].r=0;
@@ -155,8 +173,10 @@ void pointcloud_cb(const sensor_msgs::PointCloud2ConstPtr& input){
 	}
 	
 	pointcloud_publisher.publish(*transformed_cloud);
-
+	*/
 	
+
+	////////////////////PCL HEIGHTMAP API////////////////////
 
 	//heightmap api still not working
 	/*
@@ -166,7 +186,12 @@ void pointcloud_cb(const sensor_msgs::PointCloud2ConstPtr& input){
 	for(int i=0; i<heightmapvec.size(); i++)
  		cout << heightmapvec[i] << endl;
  	*/
+	
+
+	////////////////////VOXEL GRID//////////////////////////
 	// Container for original & filtered data
+
+	/*
 	pcl::PCLPointCloud2* cloud = new pcl::PCLPointCloud2; 
 	pcl::PCLPointCloud2ConstPtr cloudPtr(cloud);
 	pcl::PCLPointCloud2 cloud_filtered;
@@ -186,4 +211,43 @@ void pointcloud_cb(const sensor_msgs::PointCloud2ConstPtr& input){
 
   // Publish the data
 	voxel_pub.publish (output);
+	*/
+	
+}
+bool get_height_map(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res){
+	
+	if (req.data == true){
+		ROS_INFO( "service: get heightmap\n");
+	}
+
+	
+	int rowCount = 224;
+	int colCount = 320;
+	double upperleftx = -0.12;
+	double upperlefty = 0.2;
+	double gapx = 0.12/100;
+	double gapy = 0.2/150;
+	cv::Mat colorimg(rowCount, colCount, CV_8UC3, cv::Scalar(0,0,0));
+	cv::Mat depthimg(rowCount, colCount, CV_8U, cv::Scalar(0));
+	int indexx = 0;
+	int indexy = 0;
+	
+	for (int i=0; i<realcloud->size(); i++){
+		if((realcloud->points[i].x>-0.12) && (realcloud->points[i].x<0.12) && (realcloud->points[i].y>-0.2) && (realcloud->points[i].y<0.2)){
+			indexx = int(floor((realcloud->points[i].x-upperleftx)/gapx)+12);
+			indexy = int(floor((realcloud->points[i].y-upperlefty)/gapy)+10);
+			colorimg.at<cv::Vec3b>(indexx, indexy)[0]=realcloud->points[i].b;
+			colorimg.at<cv::Vec3b>(indexx, indexy)[1]=realcloud->points[i].g;
+			colorimg.at<cv::Vec3b>(indexx, indexy)[2]=realcloud->points[i].r;
+			if (depthimg.at<uchar>(indexx, indexy)<realcloud->points[i].z)
+				depthimg.at<uchar>(indexx, indexy)=realcloud->points[i].z;
+		}
+	}
+	
+	cv::imwrite( "/home/nctuece/colorimage.jpg", colorimg );
+	cv::imwrite( "/home/nctuece/depthimage.jpg", depthimg );
+	cout << "image write to file\n";
+	res.success = true;
+	return true;
+
 }
