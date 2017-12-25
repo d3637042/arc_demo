@@ -132,6 +132,9 @@ include_directories(
 add_executable(get_height_map src/get_height_map.cpp)
 target_link_libraries(get_height_map ${catkin_LIBRARIES}${OpenCV_LIBRARIES})
 
+add_executable(adjustment src/adjustment.cpp)
+target_link_libraries(adjustment ${catkin_LIBRARIES}${OpenCV_LIBRARIES})
+
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/heightmap_creator.cpp
