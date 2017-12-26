@@ -65,6 +65,7 @@ class MoveItCartesianPath:
         orientation_list = [start_pose.orientation.x, start_pose.orientation.y, start_pose.orientation.z, start_pose.orientation.w] 
         (roll, pitch, yaw) = euler_from_quaternion (orientation_list)
         print roll, pitch, yaw
+	#roll = roll + 0.1
         quat = quaternion_from_euler (roll, pitch, yaw)
         print quat
         # Initialize the waypoints list
@@ -79,7 +80,7 @@ class MoveItCartesianPath:
         # Set the next waypoint to the right 0.5 meters
         #wpose.position.x = 0.5
         #wpose.position.y = 0
-        wpose.position.z +=0.05
+        #wpose.position.z +=0.05
         wpose.orientation.x = quat[0]
         wpose.orientation.y = quat[1]
         wpose.orientation.z = quat[2]
