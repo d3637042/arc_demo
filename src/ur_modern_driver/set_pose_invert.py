@@ -76,13 +76,33 @@ class MoveItCartesianPath:
         waypoints.append(start_pose)
 
         wpose = deepcopy(start_pose)
-        wpose.position.x = -0.0138389254855
-        wpose.position.y = -0.647049515252
-        wpose.position.z = 0.286590011859
-        wpose.orientation.x = -0.735941683273
-        wpose.orientation.y = 0.67568545746
-        wpose.orientation.z = -0.0280117274374
-        wpose.orientation.w = 0.0324706717432
+        wpose.position.x = 0.538398588204
+        wpose.position.y = -0.101949504205
+        wpose.position.z = -0.329646311992
+        wpose.orientation.x = -0.699973132346
+        wpose.orientation.y = 0.0138142052368
+        wpose.orientation.z = 0.713735857826
+        wpose.orientation.w = 0.0206859126043
+        waypoints.append(deepcopy(wpose))
+
+        wpose = deepcopy(start_pose)
+        wpose.position.x = 0.538398588204
+        wpose.position.y = -0.101949504205
+        wpose.position.z = 0.277108480343
+        wpose.orientation.x = -0.699973132346
+        wpose.orientation.y = 0.0138142052368
+        wpose.orientation.z = 0.713735857826
+        wpose.orientation.w = 0.0206859126043
+        waypoints.append(deepcopy(wpose))
+        
+        wpose = deepcopy(start_pose)
+        wpose.position.x = 0.538398588204
+        wpose.position.y = -0.101949504205
+        wpose.position.z = 0.277108480343
+        wpose.orientation.x = -0.997850537371
+        wpose.orientation.y = 0.0487992045317
+        wpose.orientation.z = -0.000229221543503
+        wpose.orientation.w = 0.0437365998015
         waypoints.append(deepcopy(wpose))
 
         wpose = deepcopy(start_pose)
@@ -96,35 +116,15 @@ class MoveItCartesianPath:
         waypoints.append(deepcopy(wpose))
 
         wpose = deepcopy(start_pose)
-        wpose.position.x = 0.538398588204
-        wpose.position.y = -0.101949504205
-        wpose.position.z = 0.277108480343
-        wpose.orientation.x = -0.997850537371
-        wpose.orientation.y = 0.0487992045317
-        wpose.orientation.z = -0.000229221543503
-        wpose.orientation.w = 0.0437365998015
+        wpose.position.x = -0.0138389254855
+        wpose.position.y = -0.647049515252
+        wpose.position.z = 0.286590011859
+        wpose.orientation.x = -0.735941683273
+        wpose.orientation.y = 0.67568545746
+        wpose.orientation.z = -0.0280117274374
+        wpose.orientation.w = 0.0324706717432
         waypoints.append(deepcopy(wpose))
 
-        wpose = deepcopy(start_pose)
-        wpose.position.x = 0.538398588204
-        wpose.position.y = -0.101949504205
-        wpose.position.z = 0.277108480343
-        wpose.orientation.x = -0.699973132346
-        wpose.orientation.y = 0.0138142052368
-        wpose.orientation.z = 0.713735857826
-        wpose.orientation.w = 0.0206859126043
-        waypoints.append(deepcopy(wpose))
-
-        wpose = deepcopy(start_pose)
-        wpose.position.x = 0.538398588204
-        wpose.position.y = -0.101949504205
-        wpose.position.z = -0.329646311992
-        wpose.orientation.x = -0.699973132346
-        wpose.orientation.y = 0.0138142052368
-        wpose.orientation.z = 0.713735857826
-        wpose.orientation.w = 0.0206859126043
-        waypoints.append(deepcopy(wpose))
-        
         fraction = 0.0
         maxtries = 100
         attempts = 0

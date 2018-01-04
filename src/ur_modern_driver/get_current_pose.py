@@ -27,6 +27,7 @@ import moveit_commander
 from geometry_msgs.msg import Pose
 from copy import deepcopy
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
+    
 class MoveItCartesianPath:
     def __init__(self):
         rospy.init_node("moveit_cartesian_path", anonymous=False)
@@ -56,56 +57,28 @@ class MoveItCartesianPath:
         # Allow some leeway in position (meters) and orientation (radians)
         self.arm.set_goal_position_tolerance(0.01)
         self.arm.set_goal_orientation_tolerance(0.1)
-
+        file = open('/home/nctuece/catkin_ws/src/ur_modern_driver/posearray.txt', 'w+')
         # Get the current pose so we can add it as a waypoint
-        start_pose = self.arm.get_current_pose(end_effector_link).pose
+        while 1:
+            start_pose = self.arm.get_current_pose(end_effector_link).pose
 
-        print "start pose", start_pose
-        orientation_list = [start_pose.orientation.x, start_pose.orientation.y, start_pose.orientation.z, start_pose.orientation.w] 
-        (roll, pitch, yaw) = euler_from_quaternion (orientation_list)
-        print roll, pitch, yaw
-        quat = quaternion_from_euler (roll, pitch, yaw)
-        print quat
-        # Initialize the waypoints list
-        waypoints = []
-
-        # Set the first waypoint to be the starting pose
-        # Append the pose to the waypoints list
-        waypoints.append(start_pose)
-
-        #wpose = deepcopy(start_pose)
+            print start_pose
+            orientation_list = [start_pose.orientation.x, start_pose.orientation.y, start_pose.orientation.z, start_pose.orientation.w] 
+            (roll, pitch, yaw) = euler_from_quaternion (orientation_list)
+            print roll, pitch, yaw
+            quat = quaternion_from_euler (roll, pitch, yaw)
+            print quat
         
-        # Set the next waypoint to the right 0.5 meters
-        #wpose.position.y -= 0.1
+            s = raw_input('waitkey: ')
+            if s == 'w':
+                print 'write pose'
+                file.write(str(start_pose.position.x) + ' ' +str(start_pose.position.y) + ' ' +str(start_pose.position.z) + ' ' +str(start_pose.orientation.x) + ' ' + str(start_pose.orientation.y) + ' ' + str(start_pose.orientation.z) + ' ' + str(start_pose.orientation.w) + '\n');
+            if s == 'e':
+                file.close()
+                break
 
-        #waypoints.append(deepcopy(wpose))
 
-        fraction = 0.0
-        maxtries = 100
-        attempts = 0
-
-        # Set the internal state to the current state
-        self.arm.set_start_state_to_current_state()
-
-        # Plan the Cartesian path connecting the waypoints
-        while fraction < 1.0 and attempts < maxtries:
-            (plan, fraction) = self.arm.compute_cartesian_path (waypoints, 0.01, 0.0, True)
-
-            # Increment the number of attempts
-            attempts += 1
-
-            # Print out a progress message
-            if attempts % 10 == 0:
-                rospy.loginfo("Still trying after " + str(attempts) + " attempts...")
-
-        # If we have a complete plan, execute the trajectory
-        if fraction == 1.0:
-            rospy.loginfo("Path computed successfully. Moving the arm.")
-            self.arm.execute(plan)
-            rospy.loginfo("Path execution complete.")
-        else:
-            rospy.loginfo("Path planning failed with only " + str(fraction) + " success after " + str(maxtries) + " attempts.")
-
+        
     def cleanup(self):
         rospy.loginfo("Stopping the robot")
 
