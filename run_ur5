@@ -1,3 +1,13 @@
 roslaunch ur_modern_driver ur5_bringup.launch robot_ip:=140.113.146.131
 roslaunch ur5_moveit_config ur5_moveit_planning_execution.launch
 rosrun ur_modern_driver XXX.py
+rosrun tf static_transform_publisher 0 0.075 0.052 0 -1.57 0 tool0_controller /camera_link 10
+
+calibrate:
+rosrun heightmap_creator calibrate.py
+
+rosrun heightmap_creator settote.py
+
+
+camera w.r.t tcp
+0 0.075 0.052 0 0 0 1

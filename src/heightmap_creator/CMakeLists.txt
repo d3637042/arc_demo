@@ -135,6 +135,9 @@ target_link_libraries(get_height_map ${catkin_LIBRARIES}${OpenCV_LIBRARIES})
 add_executable(adjustment src/adjustment.cpp)
 target_link_libraries(adjustment ${catkin_LIBRARIES}${OpenCV_LIBRARIES})
 
+add_executable(mergeheightmap src/mergeheightmap.cpp)
+target_link_libraries(mergeheightmap ${catkin_LIBRARIES}${OpenCV_LIBRARIES})
+
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/heightmap_creator.cpp

@@ -18,8 +18,8 @@ def main():
 	while(count<20):
 		rospy.sleep(1)
 	#write to file
-	#print camera_pose3d[0][0]
-	file = open('/home/nctuece/catkin_ws/src/heightmap_creator/camera.txt', 'w+')
+	print camera_pose3d[0][0]
+	file = open('/home/nctuece/catkin_ws/src/heightmap_creator/tote.txt', 'w+')
 	file.write(str(camera_pose3d[0][0])+' '+str(camera_pose3d[0][1])+' '+str(camera_pose3d[0][2])+' '+str(camera_pose3d[1][0])+' '+str(camera_pose3d[1][1])+' '+str(camera_pose3d[1][2])+' '+str(camera_pose3d[1][3])+' \n')
 	file.close()
 	rospy.on_shutdown(myhook)
@@ -31,16 +31,14 @@ def apriltag_callback(data):
 		if count == 0:
 			print "found apriltag:", detection.id
 		#print detection.pose
-		if detection.id == 0:
-			camera_pose3d = lr.lookupTransform('/tag_0', '/camera_link' ,rospy.Time(0))
+		if detection.id == 405:
+			camera_pose3d = lr.lookupTransform('/tag_405', '/base_link' ,rospy.Time(0))
 			if count == 0:
 				print camera_pose3d
 			count = count + 1
-			br.sendTransform(camera_pose3d[0], camera_pose3d[1], rospy.Time.now(), '/camera_link', '/bin_center')
-			rospy.sleep(0.01)
 
 def myhook():
-    print "shutdown time!"			
+    print "write to file!"			
 
 if __name__=='__main__':
     main()

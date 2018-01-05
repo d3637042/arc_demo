@@ -61,11 +61,12 @@ class MoveItCartesianPath:
         # Get the current pose so we can add it as a waypoint
         start_pose = self.arm.get_current_pose(end_effector_link).pose
 
-        print "start pose", start_pose
+        #print "start pose", start_pose
         orientation_list = [start_pose.orientation.x, start_pose.orientation.y, start_pose.orientation.z, start_pose.orientation.w] 
+        #print orientation_list
         (roll, pitch, yaw) = euler_from_quaternion (orientation_list)
-        #print roll, pitch, yaw
-        #pitch = 0
+        print roll, pitch, yaw
+        #roll += 0.03
         quat = quaternion_from_euler (roll, pitch, yaw)
         #print quat
         # Initialize the waypoints list
@@ -77,19 +78,19 @@ class MoveItCartesianPath:
 
         wpose = deepcopy(start_pose)
         #wpose.position.x = -0.0141058530189
-        wpose.position.y += 0.1
-        #wpose.position.z = 0.30640234541
-        #wpose.orientation.x = -0.735942432054
-        #wpose.orientation.y = 0.67568545746
-        #wpose.orientation.z = -0.0280117274374
-        #wpose.orientation.w = 0.0324706717432
+        #wpose.position.y -= 0.1
+        wpose.position.z -= 0.1
+        #wpose.orientation.x = quat[0]
+        #wpose.orientation.y = quat[1]
+        #wpose.orientation.z = quat[2]
+        #wpose.orientation.w = quat[3]
         waypoints.append(deepcopy(wpose))
 
         
         fraction = 0.0
         maxtries = 100
         attempts = 0
-        print waypoints
+        #print waypoints
         # Set the internal state to the current state
         self.arm.set_start_state_to_current_state()
 

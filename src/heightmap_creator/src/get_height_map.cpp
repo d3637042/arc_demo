@@ -59,6 +59,8 @@ tf::StampedTransform transformtf;
 tf::TransformListener* listener;
 PointCloud<PointXYZRGB>::Ptr realcloud (new pcl::PointCloud<pcl::PointXYZRGB> ()); 
 bool get_height_map(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res);
+const char* name;
+string name_str;
 int main(int argc, char** argv){
 //ros node init
 	//extrinsic = read_camera_extrinsic();
@@ -71,6 +73,7 @@ int main(int argc, char** argv){
 	*/
 	ros::init (argc, argv, "get_height_map");
 	ros::NodeHandle nh; 
+	name_str = argv[1];
 	tf::TransformListener lr(ros::Duration(10));
 	listener = &lr; 
 	ros::Rate rate(1.0);
@@ -228,24 +231,26 @@ bool get_height_map(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response
 	double gapx = 0.12/100;
 	double gapy = 0.2/150;
 	cv::Mat colorimg(rowCount, colCount, CV_8UC3, cv::Scalar(0,0,0));
-	cv::Mat depthimg(rowCount, colCount, CV_8U, cv::Scalar(0));
+	cv::Mat depthimg(rowCount, colCount, CV_32F, cv::Scalar(0));
 	int indexx = 0;
 	int indexy = 0;
 	
 	for (int i=0; i<realcloud->size(); i++){
+		
 		if((realcloud->points[i].x>-0.12) && (realcloud->points[i].x<0.12) && (realcloud->points[i].y>-0.2) && (realcloud->points[i].y<0.2)){
 			indexx = int(floor((realcloud->points[i].x-upperleftx)/gapx)+12);
 			indexy = int(floor((realcloud->points[i].y-upperlefty)/gapy)+10);
 			colorimg.at<cv::Vec3b>(indexx, indexy)[0]=realcloud->points[i].b;
 			colorimg.at<cv::Vec3b>(indexx, indexy)[1]=realcloud->points[i].g;
 			colorimg.at<cv::Vec3b>(indexx, indexy)[2]=realcloud->points[i].r;
-			if (depthimg.at<uchar>(indexx, indexy)<realcloud->points[i].z)
-				depthimg.at<uchar>(indexx, indexy)=realcloud->points[i].z;
+			if (depthimg.at<float>(indexx, indexy)<realcloud->points[i].z)
+				cout << realcloud->points[i].z << " ";
+				depthimg.at<float>(indexx, indexy)=realcloud->points[i].z;
 		}
 	}
 	
-	cv::imwrite( "/home/nctuece/colorimage.jpg", colorimg );
-	cv::imwrite( "/home/nctuece/depthimage.jpg", depthimg );
+	cv::imwrite( "/home/nctuece/catkin_ws/" + name_str + "colorimage.jpg", colorimg );
+	cv::imwrite( "/home/nctuece/catkin_ws/" + name_str + "depthimage.jpg", depthimg );
 	cout << "image write to file\n";
 	res.success = true;
 	return true;

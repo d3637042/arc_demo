@@ -12,14 +12,14 @@ br = tf.TransformBroadcaster()
 camera_pose3d = 0
 count = 0
 def main():
-	file = open(sys.argv[1], 'r+')
+	file = open("/home/nctuece/catkin_ws/src/heightmap_creator/tote.txt", 'r+')
 	data = file.readlines()
 	file.close()
 
 
 	camera_pose = [float(x) for x in data[0].split(' ') if x.strip()]
 	while(1):
-		br.sendTransform(camera_pose[0:3], camera_pose[3:7], rospy.Time.now(), '/camera_link', '/bin_center')
+		br.sendTransform(camera_pose[0:3], camera_pose[3:7], rospy.Time.now(), '/base_link', '/bin_center')
 		rospy.sleep(0.01)
 	rospy.on_shutdown(myhook)
 
