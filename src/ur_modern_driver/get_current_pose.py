@@ -69,7 +69,7 @@ class MoveItCartesianPath:
             quat = quaternion_from_euler (roll, pitch, yaw)
             print quat
         
-            s = raw_input('waitkey: ')
+            s = raw_input('waitkey: w to write, e to end')
             if s == 'w':
                 print 'write pose'
                 file.write(str(start_pose.position.x) + ' ' +str(start_pose.position.y) + ' ' +str(start_pose.position.z) + ' ' +str(start_pose.orientation.x) + ' ' + str(start_pose.orientation.y) + ' ' + str(start_pose.orientation.z) + ' ' + str(start_pose.orientation.w) + '\n');

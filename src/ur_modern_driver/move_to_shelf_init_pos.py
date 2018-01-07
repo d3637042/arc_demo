@@ -20,24 +20,21 @@
     GNU General Public License for more details at:
 
     http://www.gnu.org/licenses/gpl.html
-    """
+"""
 
-    import rospy, sys
-    import moveit_commander
-    from geometry_msgs.msg import Pose
-    from copy import deepcopy
-    import tf
-    from tf.transformations import euler_from_quaternion, quaternion_from_euler
+import rospy, sys
+import moveit_commander
+from geometry_msgs.msg import Pose
+from copy import deepcopy
+from tf.transformations import euler_from_quaternion, quaternion_from_euler
 
-    class MoveItCartesianPath:
-    	def __init__(self):
-    		rospy.init_node("grasp_object", anonymous=False)
+class MoveItCartesianPath:
+    def __init__(self):
+        rospy.init_node("moveit_cartesian_path", anonymous=False)
 
-    		rospy.loginfo("Starting node grasp_object")
+        rospy.loginfo("Starting node moveit_cartesian_path")
 
-    		rospy.on_shutdown(self.cleanup)
-
-    		lr = tf.TransformListener()
+        rospy.on_shutdown(self.cleanup)
 
         # Initialize the move_group API
         moveit_commander.roscpp_initialize(sys.argv)
@@ -64,78 +61,60 @@
         # Get the current pose so we can add it as a waypoint
         start_pose = self.arm.get_current_pose(end_effector_link).pose
 
-        print "start pose", start_pose
+        #print "start pose", start_pose
         orientation_list = [start_pose.orientation.x, start_pose.orientation.y, start_pose.orientation.z, start_pose.orientation.w] 
+        #print orientation_list
         (roll, pitch, yaw) = euler_from_quaternion (orientation_list)
-        #print roll, pitch, yaw
-        #pitch = 0
+        print roll, pitch, yaw
+        #roll += 0.03
         quat = quaternion_from_euler (roll, pitch, yaw)
         #print quat
-        
-
-        lr.waitForTransform("/dove", "/base_link", rospy.Time(), rospy.Duration(4.0))
-        while not rospy.is_shutdown():
-            try:
-                now = rospy.Time.now()
-                lr.waitForTransform("/dove", "/base_link", now, rospy.Duration(4.0))
-                object_pose3d = lr.lookupTransform("/dove", "/base_link", now)
-
-        while true:
-            s = raw_input('waitkey: s to start')
-            if s == 's':
-                break
-
-        print object_pose3d
-
-
         # Initialize the waypoints list
         waypoints = []
 
-        
         # Set the first waypoint to be the starting pose
         # Append the pose to the waypoints list
         waypoints.append(start_pose)
 
         wpose = deepcopy(start_pose)
-        wpose.position.x = object_pose3d.position.x
-        wpose.position.y = object_pose3d.position.y
-        wpose.position.z = object_pose3d.position.z
-        #wpose.orientation.x = object_pose3d.orientation.x
-        #wpose.orientation.y = object_pose3d.orientation.y
-        #wpose.orientation.z = object_pose3d.orientation.z
-        #wpose.orientation.w = object_pose3d.orientation.w
+        wpose.position.x = 0.127915944417
+        wpose.position.y = -0.435336747166
+        wpose.position.z = 0.372311488048
+        wpose.orientation.x = -0.446964150774
+        wpose.orientation.y = 0.53387633994
+        wpose.orientation.z = -0.463547428729
+        wpose.orientation.w = 0.548017228647
         waypoints.append(deepcopy(wpose))
 
-        
         
         fraction = 0.0
         maxtries = 100
         attempts = 0
-        print waypoints
+        #print waypoints
         # Set the internal state to the current state
         self.arm.set_start_state_to_current_state()
 
         # Plan the Cartesian path connecting the waypoints
         while fraction < 1.0 and attempts < maxtries:
-        	(plan, fraction) = self.arm.compute_cartesian_path (waypoints, 0.01, 0.0, True)
+            (plan, fraction) = self.arm.compute_cartesian_path (waypoints, 0.01, 0.0, True)
 
             # Increment the number of attempts
             attempts += 1
 
             # Print out a progress message
             if attempts % 10 == 0:
-            	rospy.loginfo("Still trying after " + str(attempts) + " attempts...")
+                rospy.loginfo("Still trying after " + str(attempts) + " attempts...")
 
         # If we have a complete plan, execute the trajectory
         if fraction == 1.0:
-        	rospy.loginfo("Path computed successfully. Moving the arm.")
-        	self.arm.execute(plan)
-        	rospy.loginfo("Path execution complete.")
+            rospy.loginfo("Path computed successfully. Moving the arm.")
+            self.arm.execute(plan)
+            rospy.loginfo("Path execution complete.")
         else:
-        	rospy.loginfo("Path planning failed with only " + str(fraction) + " success after " + str(maxtries) + " attempts.")
+            rospy.loginfo("Path planning failed with only " + str(fraction) + " success after " + str(maxtries) + " attempts.")
 
-        	def cleanup(self):
-        		rospy.loginfo("Stopping the robot")
+    def cleanup(self):
+        rospy.loginfo("Stopping the robot")
 
         # Stop any current arm movement
         self.arm.stop()
@@ -145,8 +124,8 @@
         moveit_commander.roscpp_shutdown()
         moveit_commander.os._exit(0)
 
-        if __name__ == "__main__":
-        	try:
-        		MoveItCartesianPath()
-        	except KeyboardInterrupt:
-        		print "Shutting down MoveItCartesianPath node."
+if __name__ == "__main__":
+    try:
+        MoveItCartesianPath()
+    except KeyboardInterrupt:
+        print "Shutting down MoveItCartesianPath node."

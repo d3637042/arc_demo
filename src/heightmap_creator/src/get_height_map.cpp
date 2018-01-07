@@ -243,9 +243,9 @@ bool get_height_map(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response
 			colorimg.at<cv::Vec3b>(indexx, indexy)[0]=realcloud->points[i].b;
 			colorimg.at<cv::Vec3b>(indexx, indexy)[1]=realcloud->points[i].g;
 			colorimg.at<cv::Vec3b>(indexx, indexy)[2]=realcloud->points[i].r;
-			if (depthimg.at<float>(indexx, indexy)<realcloud->points[i].z)
+			if (depthimg.at<float>(indexx, indexy)<realcloud->points[i].z*100/20*255)
 				cout << realcloud->points[i].z << " ";
-				depthimg.at<float>(indexx, indexy)=realcloud->points[i].z;
+				depthimg.at<float>(indexx, indexy)=realcloud->points[i].z*100/20*255;
 		}
 	}
 	
