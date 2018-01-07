@@ -21,5 +21,8 @@ camera w.r.t tcp
 
 
 rosrun tf static_transform_publisher 0 0 0.2 0 0 0.4 tool0_controller dove_tag_middle 10
-rosrun tf static_transform_publisher 0 0 0 0 1.57 0 dove_tag_middle dove_tag_middle_mod 10
+
+
+!!! for shelf
+rosrun tf static_transform_publisher 0 0 0 0 -1.57 1.57 dove_tag_middle dove_tag_middle_mod 10
 

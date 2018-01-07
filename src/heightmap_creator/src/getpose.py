@@ -31,8 +31,8 @@ def apriltag_callback(data):
 		if count == 0:
 			print "found apriltag:", detection.id
 		#print detection.pose
-		if detection.id == 0:
-			camera_pose3d = lr.lookupTransform('/tag_0', '/camera_link' ,rospy.Time(0))
+		if detection.id == 405:
+			camera_pose3d = lr.lookupTransform('/tag_405', '/camera_link' ,rospy.Time(0))
 			if count == 0:
 				print camera_pose3d
 			count = count + 1

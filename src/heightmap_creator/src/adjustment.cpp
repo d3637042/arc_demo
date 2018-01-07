@@ -9,7 +9,7 @@ using namespace cv;
 using namespace std;
 
 Mat src, src2; Mat src_gray;
-int thresh = 100;
+int thresh = 70;
 int max_thresh = 255;
 RNG rng(12345);
 Mat warp_mat( 2, 3, CV_32FC1 );
@@ -97,11 +97,11 @@ void thresh_callback(int, void* )
        drawContours( drawing, contours_poly, i, color, 1, 8, vector<Vec4i>(), 0, Point() );
        float size = boundRect[i].size.width*boundRect[i].size.height;
        //cout << size << endl;
-       if (size>1300 && size<1600){
+       if (size>7000 && size<10000){
         for( int j = 0; j < 4; j++ ){
           boundRect[i].points(Apriltagbox);
           apriltagboundRect = boundRect[i];
-          line( drawing, Apriltagbox[j], Apriltagbox[(j+1)%4], Scalar(0,255,0), 1, 8 );  
+          line( drawing, Apriltagbox[j], Apriltagbox[(j+1)%4], Scalar(255,0,0), 10, 8 );  
           //cout << Apriltagbox[j] << endl;
         }
 
@@ -118,20 +118,25 @@ void thresh_callback(int, void* )
   Point2f srcpnts[4];
   Point2f dstpnts[4];
   Point2f Apriltagbox_sorted[4];
-  for (int i=0; i<3; i++){
+  for (int i=0; i<4; i++){
+    //cout << Apriltagbox[i].x << endl;
     if((Apriltagbox[i].x < apriltagboundRect.center.x)&&(Apriltagbox[i].y < apriltagboundRect.center.y)){
+      //cout << "0" << endl;
       Apriltagbox_sorted[0] = Apriltagbox[i];
     }
 
     if((Apriltagbox[i].x < apriltagboundRect.center.x)&&(Apriltagbox[i].y > apriltagboundRect.center.y)){
+      //cout << "1" << endl;
       Apriltagbox_sorted[1] = Apriltagbox[i];
     }
 
     if((Apriltagbox[i].x > apriltagboundRect.center.x)&&(Apriltagbox[i].y > apriltagboundRect.center.y)){
+      //cout << "2" << endl;
       Apriltagbox_sorted[2] = Apriltagbox[i];
     }
 
     if((Apriltagbox[i].x> apriltagboundRect.center.x)&&(Apriltagbox[i].y < apriltagboundRect.center.y)){
+      //cout << "3" << endl;
       Apriltagbox_sorted[3] = Apriltagbox[i];
     }
   }
@@ -140,11 +145,13 @@ void thresh_callback(int, void* )
   srcpnts[1] = Apriltagbox_sorted[1];
   srcpnts[2] = Apriltagbox_sorted[2];
   srcpnts[3] = Apriltagbox_sorted[3];
-  dstpnts[0] = Point2f(160-20, 112-20);
-  dstpnts[1] = Point2f(160-20, 112+20);
-  dstpnts[2] = Point2f(160+20, 112+20);
-  dstpnts[3] = Point2f(160+20, 112-20);
+  dstpnts[0] = Point2f(160-40, 112-40);
+  dstpnts[1] = Point2f(160-40, 112+40);
+  dstpnts[2] = Point2f(160+40, 112+40);
+  dstpnts[3] = Point2f(160+40, 112-40);
+  cout << apriltagboundRect.center.x << " " << apriltagboundRect.center.y << endl;
   cout << Apriltagbox[0] << Apriltagbox[1] << Apriltagbox[2] << Apriltagbox[3] << endl;
+  cout << Apriltagbox_sorted[0] << Apriltagbox_sorted[1] << Apriltagbox_sorted[2] << Apriltagbox_sorted[3] << endl;
   
   warp_mat = getAffineTransform( srcpnts, dstpnts );
 

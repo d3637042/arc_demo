@@ -18,7 +18,9 @@ rosrun heightmap_creator setcamera.py /home/nctuece/catkin_ws/src/heightmap_crea
 rosrun heightmap_creator get_height_map sr300_X
 rosservice call /get_height_map true
 rosrun heightmap_creator adjustment sr300_X exec
-rosrun heightmap_creator mergeheightmap sr300_x sr300_y
+
+
+rosrun heightmap_creator mergeheightmap sr300_1 sr300_4 sr300_18 sr300_20
 
 
 
