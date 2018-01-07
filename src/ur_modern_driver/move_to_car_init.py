@@ -76,27 +76,7 @@ class MoveItCartesianPath:
         # Append the pose to the waypoints list
         waypoints.append(start_pose)
 
-	wpose = deepcopy(start_pose)
-        wpose.position.x = 0.127915944417
-        wpose.position.y = -0.435336747166
-        wpose.position.z = 0.372311488048
-        wpose.orientation.x = -0.446964150774
-        wpose.orientation.y = 0.53387633994
-        wpose.orientation.z = -0.463547428729
-        wpose.orientation.w = 0.548017228647
-        waypoints.append(deepcopy(wpose))	
-
         wpose = deepcopy(start_pose)
-        wpose.position.x = 0.418210471033
-        wpose.position.y = -0.0733361238638
-        wpose.position.z = 0.388450543314
-        wpose.orientation.x = -0.6982202657
-        wpose.orientation.y = 0.144472057954
-        wpose.orientation.z = -0.0897634851529
-        wpose.orientation.w = 0.695383924009
-        waypoints.append(deepcopy(wpose))
-	
-	wpose = deepcopy(start_pose)
         wpose.position.x = 0.724878225068
         wpose.position.y = -0.0902229262006
         wpose.position.z = -0.0132514994323
@@ -106,7 +86,6 @@ class MoveItCartesianPath:
         wpose.orientation.w = 0.563181816326
         waypoints.append(deepcopy(wpose))
 
-	
         
         fraction = 0.0
         maxtries = 100

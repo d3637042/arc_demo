@@ -67,36 +67,32 @@ class MoveItCartesianPath:
         # Get the current pose so we can add it as a waypoint
         start_pose = self.arm.get_current_pose(end_effector_link).pose
 
-        print "start pose", start_pose
-        orientation_list = [start_pose.orientation.x, start_pose.orientation.y, start_pose.orientation.z, start_pose.orientation.w] 
-        (roll, pitch, yaw) = euler_from_quaternion (orientation_list)
-        #print roll, pitch, yaw
-        #pitch = 0
-        quat = quaternion_from_euler (roll, pitch, yaw)
-        #print quat
+        #print "start pose", start_pose
+        
         
 
         #listener.waitForTransform("/base_link", "/tag_0", rospy.Time(), rospy.Duration(4.0))
         #listener.waitForTransform("/base_link", "/tool0_controller", rospy.Time(), rospy.Duration(4.0))
-        listener.waitForTransform("/base_link", "/dove_tag", rospy.Time(), rospy.Duration(4.0))
+        listener.waitForTransform("/base_link", "/dove_tag_middle", rospy.Time(), rospy.Duration(4.0))
         running = True
         while running:
             try: 
                 now = rospy.Time.now()
                 #listener.waitForTransform("/base_link", "/tag_0", now, rospy.Duration(4.0))
-                listener.waitForTransform("/base_link", "/dove_tag", now, rospy.Duration(4.0))
+                listener.waitForTransform("/base_link", "/dove_tag_middle", now, rospy.Duration(4.0))
                 #listener.waitForTransform("/base_link", "/tool0_controller", now, rospy.Duration(4.0))
                 #(translation, quaternion) = listener.lookupTransform("/base_link", "/tag_0", now)
-                (translation, quaternion) = listener.lookupTransform("/base_link", "/dove_tag", now)
+                (translation, quaternion) = listener.lookupTransform("/base_link", "/dove_tag_middle_mod", now)
+                #(translation_inv, quaternion_inv) = listener.lookupTransform("/dove_tag_middle", "/base_link", now)
                 #(translation, quaternion) = listener.lookupTransform("/base_link", "/tool0_controller", now)
                 #transform = tfm.concatenate_matrices(tfm.translation_matrix(translation), tfm.quaternion_matrix(quaternion))
                 #inversed_transform = tfm.inverse_matrix(transform)
-                #translation = tfm.translation_from_matrix(inversed_transform)
-                #quaternion = tfm.quaternion_from_matrix(inversed_transform)
-                #print translation, quaternion
+                #translationqq = tfm.translation_from_matrix(inversed_transform)
+                #quaternionqq = tfm.quaternion_from_matrix(inversed_transform)
+                #print quaternionqq
                 (translation_d1, quaternion_d1) = listener.lookupTransform("/base_link", "/gripper", now)
                 (translation_d2, quaternion_d2) = listener.lookupTransform("/base_link", "/tool0_controller", now)
-                (translation_middle, quaternion_middle) = listener.lookupTransform("/base_link", "/dove_tag_middle", now)
+                #(translation_middle, quaternion_middle) = listener.lookupTransform("/base_link", "/dove_tag_middle", now)
                 running = False
             except(tf.Exception), e:
                 print "transform not available, aborting..."
@@ -106,19 +102,23 @@ class MoveItCartesianPath:
             translation_d[index] = translation_d1[index]-translation_d2[index]
         #print translation[0], translation[1], translation[2]
         #print translation_d[0], translation_d[1], translation_d[2]
-        print "trans: ", translation[0]-translation_d[0], translation[1]-translation_d[1], translation[2]-translation_d[2] 
+        #print "trans: ", translation[0]-translation_d[0], translation[1]-translation_d[1], translation[2]-translation_d[2] 
         #print quaternion
-        (roll, pitch, yaw) = euler_from_quaternion (quaternion)
-        roll = roll + 3.14
-        yaw = yaw + 1.57
-        #print roll, pitch, yaw
-        quaternion = quaternion_from_euler (roll, pitch, yaw)
-        print "quat: ", quaternion
+
+        #(translation, quaternion) = listener.lookupTransform("/dove_tag_middle", "/tool0_controller", now)
+        #(roll, pitch, yaw) = euler_from_quaternion (quaternion_inv)
+        #(roll2, pitch2, yaw2) = euler_from_quaternion (quaternion)
+        
+        #print 'inv rpy: ', roll, pitch, yaw
+        #print 'rpy: ',roll2, pitch2, yaw2
+        
 
         orientation_list = [start_pose.orientation.x, start_pose.orientation.y, start_pose.orientation.z, start_pose.orientation.w] 
         (roll, pitch, yaw) = euler_from_quaternion (orientation_list)
-        #print roll, pitch, yaw
-        
+        print 'start rpy: ', roll, pitch, yaw
+        #roll = roll+0.1
+        #quaternion = quaternion_from_euler (roll, pitch, yaw)
+        #print "quat: ", quaternion
 
         # Initialize the waypoints list
         waypoints = []
@@ -129,9 +129,9 @@ class MoveItCartesianPath:
         waypoints.append(start_pose)
 
         wpose = deepcopy(start_pose)
-        wpose.position.x = translation_middle[0]
-        wpose.position.y = translation_middle[1]
-        wpose.position.z = translation_middle[2]
+        wpose.position.x = translation[0]
+        wpose.position.y = translation[1]
+        wpose.position.z = translation[2]
         wpose.orientation.x = quaternion[0]
         wpose.orientation.y = quaternion[1]
         wpose.orientation.z = quaternion[2]
