@@ -68,14 +68,7 @@ class MoveItCartesianPath:
         print roll, pitch, yaw
         #roll += 0.03
         quat = quaternion_from_euler (roll, pitch, yaw)
-	
-	file = open(sys.argv[1], 'r+')
-	data = file.readlines()
-	file.close()
-
-
-	camera_pose = [float(x) for x in data[0].split(' ') if x.strip()]        
-	#print quat
+        #print quat
         # Initialize the waypoints list
         waypoints = []
 
@@ -84,14 +77,14 @@ class MoveItCartesianPath:
         waypoints.append(start_pose)
 
         wpose = deepcopy(start_pose)
-        wpose.position.x = 0.1237512206
-        wpose.position.y = -0.417872133952
-        wpose.position.z = 0.358717674178
-        wpose.orientation.x = -0.497036300159
-        wpose.orientation.y = 0.483674331379
-        wpose.orientation.z = -0.509244829689
-        wpose.orientation.w = 0.509591759082
-        waypoints.append(deepcopy(wpose))
+        #wpose.position.x += 0
+        #wpose.position.y += 0
+        #wpose.position.z += 0
+        #wpose.orientation.x += 0
+        #wpose.orientation.y += 0
+        #wpose.orientation.z += 0
+        #wpose.orientation.w += 0
+        #waypoints.append(deepcopy(wpose))
 
         
         fraction = 0.0
