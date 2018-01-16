@@ -80,7 +80,7 @@ class MoveItCartesianPath:
         # Allow some leeway in position (meters) and orientation (radians)
         self.arm.set_goal_position_tolerance(0.005)
         self.arm.set_goal_orientation_tolerance(0.05)
-        
+        self.arm.set_max_velocity_scaling_factor(0.1) 	
         while True:
         
             x = raw_input('waitkey(o open gripper): ')
@@ -197,7 +197,7 @@ class MoveItCartesianPath:
         wpose.orientation.w = quaternion[3]
         waypoints.append(deepcopy(wpose))
         '''
-
+        print waypoints
         while True:
             x = raw_input('waitkey(s to start): ')
             if x == 's':

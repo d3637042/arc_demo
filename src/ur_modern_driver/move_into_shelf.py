@@ -79,7 +79,7 @@ class MoveItCartesianPath:
         wpose = deepcopy(start_pose)
         #wpose.position.x = -0.0141058530189
         wpose.position.y -= 0.2
-        wpose.position.z -= 0.07
+        wpose.position.z -= 0.03
         #wpose.orientation.x = quat[0]
         #wpose.orientation.y = quat[1]
         #wpose.orientation.z = quat[2]
