@@ -77,9 +77,9 @@ class MoveItCartesianPath:
         waypoints.append(start_pose)
 
         wpose = deepcopy(start_pose)
-        wpose.position.x = 0.087
-        wpose.position.y = -0.492
-        wpose.position.z = 0.787 
+        #wpose.position.x += 0.4
+        #wpose.position.y -= 0.1
+        wpose.position.z -= 0.005
         #wpose.orientation.x = quat[0]
         #wpose.orientation.y = quat[1]
         #wpose.orientation.z = quat[2]

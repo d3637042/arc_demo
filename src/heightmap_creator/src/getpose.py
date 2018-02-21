@@ -31,12 +31,12 @@ def apriltag_callback(data):
 		if count == 0:
 			print "found apriltag:", detection.id
 		#print detection.pose
-		if detection.id == 405:
-			camera_pose3d = lr.lookupTransform('/tag_405', '/camera_link' ,rospy.Time(0))
+		if detection.id == 504:
+			camera_pose3d = lr.lookupTransform('/tag_504', '/camera_link', rospy.Time(0))
 			if count == 0:
 				print camera_pose3d
 			count = count + 1
-			br.sendTransform(camera_pose3d[0], camera_pose3d[1], rospy.Time.now(), '/camera_link', '/bin_center')
+			
 			rospy.sleep(0.01)
 
 def myhook():

@@ -1,0 +1,15 @@
+digraph G {
+"camera_link" -> "camera_rgb_frame"[label="Broadcaster: /camera/camera_nodelet_manager\nAverage rate: 10000.000 Hz\nMost recent transform: 0.000 ( 1517567755.816 sec old)\nBuffer length: 0.000 sec\n"];
+"virtual_tag" -> "camera_link"[label="Broadcaster: /calibration_7563_1517567707570\nAverage rate: 95.404 Hz\nMost recent transform: 1517567755.815 ( 0.001 sec old)\nBuffer length: 4.979 sec\n"];
+"camera_rgb_frame" -> "camera_rgb_optical_frame"[label="Broadcaster: /camera/camera_nodelet_manager\nAverage rate: 10000.000 Hz\nMost recent transform: 0.000 ( 1517567755.816 sec old)\nBuffer length: 0.000 sec\n"];
+"camera_link" -> "camera_depth_frame"[label="Broadcaster: /camera/camera_nodelet_manager\nAverage rate: 10000.000 Hz\nMost recent transform: 0.000 ( 1517567755.816 sec old)\nBuffer length: 0.000 sec\n"];
+"camera_depth_frame" -> "camera_depth_optical_frame"[label="Broadcaster: /camera/camera_nodelet_manager\nAverage rate: 10000.000 Hz\nMost recent transform: 0.000 ( 1517567755.816 sec old)\nBuffer length: 0.000 sec\n"];
+"camera_link" -> "camera_ir_frame"[label="Broadcaster: /camera/camera_nodelet_manager\nAverage rate: 10000.000 Hz\nMost recent transform: 0.000 ( 1517567755.816 sec old)\nBuffer length: 0.000 sec\n"];
+"camera_ir_frame" -> "camera_ir_optical_frame"[label="Broadcaster: /camera/camera_nodelet_manager\nAverage rate: 10000.000 Hz\nMost recent transform: 0.000 ( 1517567755.816 sec old)\nBuffer length: 0.000 sec\n"];
+"virtual_tag" -> "center_camera"[label="Broadcaster: /calibration_7518_1517567655568\nAverage rate: 95.451 Hz\nMost recent transform: 1517567755.815 ( 0.001 sec old)\nBuffer length: 4.976 sec\n"];
+"camera_rgb_optical_frame" -> "tag_504"[label="Broadcaster: /apriltag_detector\nAverage rate: 6.482 Hz\nMost recent transform: 1517567755.621 ( 0.196 sec old)\nBuffer length: 4.937 sec\n"];
+edge [style=invis];
+ subgraph cluster_legend { style=bold; color=black; label ="view_frames Result";
+"Recorded at time: 1517567755.816"[ shape=plaintext ] ;
+ }->"virtual_tag";
+}

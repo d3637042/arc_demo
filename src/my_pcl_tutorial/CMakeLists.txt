@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(heightmap_creator)
+project(my_pcl_tutorial)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -8,19 +8,11 @@ project(heightmap_creator)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  tf
   pcl_conversions
   pcl_ros
-  cv_bridge
-  geometry_msgs
   roscpp
-  rospy
   sensor_msgs
-  std_msgs
-  std_srvs
-  image_transport
 )
-find_package(OpenCV REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -79,7 +71,7 @@ find_package(OpenCV REQUIRED)
 ## Generate added messages and services with any dependencies listed here
 # generate_messages(
 #   DEPENDENCIES
-#   std_msgs
+#   sensor_msgs
 # )
 
 ################################################
@@ -113,8 +105,8 @@ find_package(OpenCV REQUIRED)
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES heightmap_creator
-#  CATKIN_DEPENDS roscpp rospy std_msgs
+#  LIBRARIES my_pcl_tutorial
+#  CATKIN_DEPENDS pcl_conversions pcl_ros roscpp sensor_msgs
 #  DEPENDS system_lib
 )
 
@@ -126,25 +118,12 @@ catkin_package(
 ## Your package locations should be listed before other locations
 include_directories(
 # include
-  ${OpenCV_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
 )
-add_executable(get_height_map src/get_height_map.cpp)
-target_link_libraries(get_height_map ${catkin_LIBRARIES}${OpenCV_LIBRARIES})
-
-add_executable(adjustment src/adjustment.cpp)
-target_link_libraries(adjustment ${catkin_LIBRARIES}${OpenCV_LIBRARIES})
-
-add_executable(mergeheightmap src/mergeheightmap.cpp)
-target_link_libraries(mergeheightmap ${catkin_LIBRARIES}${OpenCV_LIBRARIES})
-
-add_executable(get_transformed_pointcloud src/get_transformed_pointcloud.cpp)
-target_link_libraries(get_transformed_pointcloud ${catkin_LIBRARIES}${OpenCV_LIBRARIES})
-
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/heightmap_creator.cpp
+#   src/${PROJECT_NAME}/my_pcl_tutorial.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -155,8 +134,9 @@ target_link_libraries(get_transformed_pointcloud ${catkin_LIBRARIES}${OpenCV_LIB
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/heightmap_creator_node.cpp)
-
+# add_executable(${PROJECT_NAME}_node src/my_pcl_tutorial_node.cpp)
+add_executable(strawberry_seg src/strawberry_seg.cpp)
+target_link_libraries(strawberry_seg ${catkin_LIBRARIES})
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -212,7 +192,7 @@ target_link_libraries(get_transformed_pointcloud ${catkin_LIBRARIES}${OpenCV_LIB
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_heightmap_creator.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_my_pcl_tutorial.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

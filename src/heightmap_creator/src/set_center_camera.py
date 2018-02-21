@@ -19,7 +19,7 @@ def main():
 
 	camera_pose = [float(x) for x in data[0].split(' ') if x.strip()]
 	while(1):
-		br.sendTransform(camera_pose[0:3], camera_pose[3:7], rospy.Time.now(), '/camera_link', '/virtual_tag')
+		br.sendTransform(camera_pose[0:3], camera_pose[3:7], rospy.Time.now(), '/center_camera', '/virtual_tag')
 		rospy.sleep(0.01)
 	rospy.on_shutdown(myhook)
 
