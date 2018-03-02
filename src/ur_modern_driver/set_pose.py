@@ -26,16 +26,24 @@ import rospy, sys
 import moveit_commander
 from geometry_msgs.msg import Pose
 from copy import deepcopy
+import tf
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
+import tf.transformations as tfm
+from robotiq_c_model_control.msg import _CModel_robot_output  as outputMsg
 
 class MoveItCartesianPath:
     def __init__(self):
-        rospy.init_node("moveit_cartesian_path", anonymous=False)
+        rospy.init_node("grasp_object", anonymous=False)
 
-        rospy.loginfo("Starting node moveit_cartesian_path")
+        rospy.loginfo("Starting node grasp_object")
 
         rospy.on_shutdown(self.cleanup)
 
+        listener = tf.TransformListener()
+
+
+
+        
         # Initialize the move_group API
         moveit_commander.roscpp_initialize(sys.argv)
 
@@ -55,101 +63,128 @@ class MoveItCartesianPath:
         self.arm.allow_replanning(True)
 
         # Allow some leeway in position (meters) and orientation (radians)
-        self.arm.set_goal_position_tolerance(0.01)
-        self.arm.set_goal_orientation_tolerance(0.1)
+        self.arm.set_goal_position_tolerance(0.005)
+        self.arm.set_goal_orientation_tolerance(0.05)
+        self.arm.set_max_velocity_scaling_factor(0.1) 	
 
-        # Get the current pose so we can add it as a waypoint
-        start_pose = self.arm.get_current_pose(end_effector_link).pose
+        #open file
 
-        print "start pose", start_pose
-        orientation_list = [start_pose.orientation.x, start_pose.orientation.y, start_pose.orientation.z, start_pose.orientation.w] 
-        (roll, pitch, yaw) = euler_from_quaternion (orientation_list)
-        #print roll, pitch, yaw
-        #pitch = 0
-        quat = quaternion_from_euler (roll, pitch, yaw)
-        #print quat
-        # Initialize the waypoints list
-        waypoints = []
+        #read line
 
-        # Set the first waypoint to be the starting pose
-        # Append the pose to the waypoints list
-        waypoints.append(start_pose)
+        while 1:    
+            # Get the current pose so we can add it as a waypoint
+            start_pose = self.arm.get_current_pose(end_effector_link).pose
 
-        wpose = deepcopy(start_pose)
-        wpose.position.x = -0.0138389254855
-        wpose.position.y = -0.647049515252
-        wpose.position.z = 0.286590011859
-        wpose.orientation.x = -0.735941683273
-        wpose.orientation.y = 0.67568545746
-        wpose.orientation.z = -0.0280117274374
-        wpose.orientation.w = 0.0324706717432
-        waypoints.append(deepcopy(wpose))
+            orientation_list = [start_pose.orientation.x, start_pose.orientation.y, start_pose.orientation.z, start_pose.orientation.w] 
+            (roll, pitch, yaw) = euler_from_quaternion (orientation_list)
+            print 'start rpy: ', roll, pitch, yaw
+            (t_roll, t_pitch, t_yaw) = euler_from_quaternion (quaternion)
+            print 'target rpy: ', t_roll, t_pitch, t_yaw
 
-        wpose = deepcopy(start_pose)
-        wpose.position.x = -0.0141058530189
-        wpose.position.y = -0.543253696359
-        wpose.position.z = 0.28640234541
-        wpose.orientation.x = -0.735942432054
-        wpose.orientation.y = 0.67568545746
-        wpose.orientation.z = -0.0280117274374
-        wpose.orientation.w = 0.0324706717432
-        waypoints.append(deepcopy(wpose))
 
-        wpose = deepcopy(start_pose)
-        wpose.position.x = 0.538398588204
-        wpose.position.y = -0.101949504205
-        wpose.position.z = 0.277108480343
-        wpose.orientation.x = -0.997850537371
-        wpose.orientation.y = 0.0487992045317
-        wpose.orientation.z = -0.000229221543503
-        wpose.orientation.w = 0.0437365998015
-        waypoints.append(deepcopy(wpose))
+            # Initialize the waypoints list
+            waypoints = []
 
-        wpose = deepcopy(start_pose)
-        wpose.position.x = 0.538398588204
-        wpose.position.y = -0.101949504205
-        wpose.position.z = 0.277108480343
-        wpose.orientation.x = -0.699973132346
-        wpose.orientation.y = 0.0138142052368
-        wpose.orientation.z = 0.713735857826
-        wpose.orientation.w = 0.0206859126043
-        waypoints.append(deepcopy(wpose))
+            # Set the first waypoint to be the starting pose
+            # Append the pose to the waypoints list
+            waypoints.append(start_pose)
 
-        wpose = deepcopy(start_pose)
-        wpose.position.x = 0.538398588204
-        wpose.position.y = -0.101949504205
-        wpose.position.z = -0.329646311992
-        wpose.orientation.x = -0.699973132346
-        wpose.orientation.y = 0.0138142052368
-        wpose.orientation.z = 0.713735857826
-        wpose.orientation.w = 0.0206859126043
-        waypoints.append(deepcopy(wpose))
-        
-        fraction = 0.0
-        maxtries = 100
-        attempts = 0
-        print waypoints
-        # Set the internal state to the current state
-        self.arm.set_start_state_to_current_state()
+            # read file line
+            wpose = deepcopy(start_pose)
+            #wpose.position.x = translation[0]-translation_d[0]
+            #wpose.position.y = translation[1]-translation_d[1]
+            #wpose.position.z = translation[2]-translation_d[2]
+            wpose.position.x = translation[0]
+            wpose.position.y = translation[1]
+            wpose.position.z = translation[2]
+            wpose.orientation.x = quaternion[0]
+            wpose.orientation.y = quaternion[1]
+            wpose.orientation.z = quaternion[2]
+            wpose.orientation.w = quaternion[3]
+            waypoints.append(deepcopy(wpose))
 
-        # Plan the Cartesian path connecting the waypoints
-        while fraction < 1.0 and attempts < maxtries:
-            (plan, fraction) = self.arm.compute_cartesian_path (waypoints, 0.01, 0.0, True)
 
-            # Increment the number of attempts
-            attempts += 1
+            while True:
+                x = raw_input('waitkey(s to start): ')
+                if x == 's':
+                    break
+            
+            fraction = 0.0
+            maxtries = 100
+            attempts = 0
+            #print waypoints
+            # Set the internal state to the current state
+            self.arm.set_start_state_to_current_state()
 
-            # Print out a progress message
-            if attempts % 10 == 0:
-                rospy.loginfo("Still trying after " + str(attempts) + " attempts...")
+            # Plan the Cartesian path connecting the waypoints
+            while fraction < 1.0 and attempts < maxtries:
+                (plan, fraction) = self.arm.compute_cartesian_path (waypoints, 0.01, 0.0, True)
 
-        # If we have a complete plan, execute the trajectory
-        if fraction == 1.0:
-            rospy.loginfo("Path computed successfully. Moving the arm.")
-            self.arm.execute(plan)
-            rospy.loginfo("Path execution complete.")
-        else:
-            rospy.loginfo("Path planning failed with only " + str(fraction) + " success after " + str(maxtries) + " attempts.")
+                # Increment the number of attempts
+                attempts += 1
+
+                # Print out a progress message
+                if attempts % 10 == 0:
+                    rospy.loginfo("Still trying after " + str(attempts) + " attempts...")
+
+            # If we have a complete plan, execute the trajectory
+            if fraction == 1.0:
+                rospy.loginfo("Path computed successfully. Moving the arm.")
+                self.arm.execute(plan)
+                rospy.loginfo("Path execution complete.")
+            else:
+                rospy.loginfo("Path planning failed with only " + str(fraction) + " success after " + str(maxtries) + " attempts.")
+
+            
+
+            
+
+            while True:
+                x = raw_input('waitkey(s to start): ')
+                if x == 's':
+                    break
+
+            waypoints = []
+            # Set the first waypoint to be the starting pose
+            # Append the pose to the waypoints list
+            
+
+            waypoints.append(wpose)
+
+            wpose = deepcopy(wpose)
+            wpose.position.x = 0.724878225068
+            wpose.position.y = -0.0902229262006
+            wpose.position.z = 0.4132514994323
+            wpose.orientation.x = -0.425978280494
+            wpose.orientation.y = 0.553721152459
+            wpose.orientation.z = 0.44131806175
+            wpose.orientation.w = 0.563181816326
+            waypoints.append(deepcopy(wpose))
+
+            fraction = 0.0
+            maxtries = 100
+            attempts = 0
+
+            self.arm.set_start_state_to_current_state()
+
+            # Plan the Cartesian path connecting the waypoints
+            while fraction < 1.0 and attempts < maxtries:
+                (plan, fraction) = self.arm.compute_cartesian_path (waypoints, 0.01, 0.0, True)
+
+                # Increment the number of attempts
+                attempts += 1
+
+                # Print out a progress message
+                if attempts % 10 == 0:
+                    rospy.loginfo("Still trying after " + str(attempts) + " attempts...")
+
+            # If we have a complete plan, execute the trajectory
+            if fraction == 1.0:
+                rospy.loginfo("Path computed successfully. Moving the arm.")
+                self.arm.execute(plan)
+                rospy.loginfo("Path execution complete.")
+            else:
+                rospy.loginfo("Path planning failed with only " + str(fraction) + " success after " + str(maxtries) + " attempts.")
 
     def cleanup(self):
         rospy.loginfo("Stopping the robot")
@@ -164,6 +199,7 @@ class MoveItCartesianPath:
 
 if __name__ == "__main__":
     try:
+
         MoveItCartesianPath()
     except KeyboardInterrupt:
         print "Shutting down MoveItCartesianPath node."
